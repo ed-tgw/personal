@@ -107,6 +107,7 @@ export default function OutpatientDashboardPage() {
   const [sortMode, setSortMode] = useState<"entry" | "deadline">("deadline");
   const [reviewedSearch, setReviewedSearch] = useState("");
   const [calendarMonth, setCalendarMonth] = useState(() => new Date());
+  const patientCardRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const [isNewPatientOpen, setIsNewPatientOpen] = useState(false);
   const [newForm, setNewForm] = useState<OutpatientForm>(emptyForm);
@@ -383,6 +384,16 @@ export default function OutpatientDashboardPage() {
     cancelEditingReviewed();
   };
 
+  const navigateToPatient = (patientId: string) => {
+    setExpandedToReview((prev) => ({ ...prev, [patientId]: true }));
+    setTimeout(() => {
+      patientCardRefs.current[patientId]?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 50);
+  };
+
   return (
     <main className="rounds-shell">
       <section className="hero-band">
@@ -453,10 +464,15 @@ export default function OutpatientDashboardPage() {
                   <div className="calendar-day-number">{day.getDate()}</div>
                   <div className="calendar-day-patients">
                     {patients.map((patient) => (
-                      <div key={patient.id} className="calendar-patient-item">
+                      <button
+                        key={patient.id}
+                        className="calendar-patient-item"
+                        onClick={() => navigateToPatient(patient.id)}
+                        type="button"
+                      >
                         <span className="calendar-patient-initials">{patient.initials}</span>
                         <span className="calendar-patient-code">{patient.hospitalCode}</span>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -498,7 +514,11 @@ export default function OutpatientDashboardPage() {
               const isEditing = editingId === record.id && editDraft !== null;
 
               return (
-                <article className="patient-card" key={record.id}>
+                <article
+                  className="patient-card"
+                  key={record.id}
+                  ref={(el) => { patientCardRefs.current[record.id] = el; }}
+                >
                   <div className="patient-header-row outpatient-header-row">
                     <button
                       className="patient-toggle"
