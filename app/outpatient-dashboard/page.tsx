@@ -106,6 +106,7 @@ export default function OutpatientDashboardPage() {
 
   const [sortMode, setSortMode] = useState<"entry" | "deadline">("deadline");
   const [reviewedSearch, setReviewedSearch] = useState("");
+  const [calendarMonth, setCalendarMonth] = useState(() => new Date());
 
   const [isNewPatientOpen, setIsNewPatientOpen] = useState(false);
   const [newForm, setNewForm] = useState<OutpatientForm>(emptyForm);
@@ -162,6 +163,31 @@ export default function OutpatientDashboardPage() {
       record.diagnosis.some((tag) => tag.toLowerCase().includes(query))
     );
   }, [reviewed, reviewedSearch]);
+
+  const calendarDays = useMemo(() => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    const days: Date[] = [];
+    const current = new Date(startDate);
+    while (days.length < 42) {
+      days.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+    return days;
+  }, [calendarMonth]);
+
+  const patientsByDeadlineDate = useMemo(() => {
+    const map: Record<string, OutpatientRecord[]> = {};
+    toReview.forEach((record) => {
+      const dateKey = record.deadlineDate;
+      if (!map[dateKey]) map[dateKey] = [];
+      map[dateKey].push(record);
+    });
+    return map;
+  }, [toReview]);
 
   const openUndoWindow = (nextUndo: PendingUndo, message: string) => {
     if (undoTimerRef.current !== null) {
@@ -373,6 +399,70 @@ export default function OutpatientDashboardPage() {
           <button className="primary-btn" onClick={() => setIsNewPatientOpen(true)}>
             New Patient
           </button>
+        </div>
+      </section>
+
+      <section className="panel outpatient-calendar-panel">
+        <header className="section-title">
+          <h2>Review Deadline Calendar</h2>
+          <div className="calendar-controls">
+            <button
+              className="ghost-btn calendar-nav-btn"
+              onClick={() =>
+                setCalendarMonth(
+                  new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1)
+                )
+              }
+            >
+              ← Prev
+            </button>
+            <span className="calendar-month-label">
+              {calendarMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+            </span>
+            <button
+              className="ghost-btn calendar-nav-btn"
+              onClick={() =>
+                setCalendarMonth(
+                  new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1)
+                )
+              }
+            >
+              Next →
+            </button>
+          </div>
+        </header>
+
+        <div className="calendar-grid">
+          <div className="calendar-weekdays">
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+              <div key={day} className="calendar-weekday">
+                {day}
+              </div>
+            ))}
+          </div>
+          <div className="calendar-days">
+            {calendarDays.map((day, index) => {
+              const dateKey = day.toISOString().slice(0, 10);
+              const patients = patientsByDeadlineDate[dateKey] || [];
+              const isCurrentMonth = day.getMonth() === calendarMonth.getMonth();
+              return (
+                <div
+                  key={index}
+                  className={`calendar-day ${!isCurrentMonth ? "calendar-day-other-month" : ""}`}
+                >
+                  <div className="calendar-day-number">{day.getDate()}</div>
+                  <div className="calendar-day-patients">
+                    {patients.map((patient) => (
+                      <div key={patient.id} className="calendar-patient-item">
+                        <span className="calendar-patient-initials">{patient.initials}</span>
+                        <span className="calendar-patient-code">{patient.hospitalCode}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
