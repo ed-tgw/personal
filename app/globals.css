@@ -701,6 +701,247 @@ button {
   gap: 0.7rem;
 }
 
+.outpatient-header-row {
+  align-items: center;
+}
+
+.outpatient-back-row {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.outpatient-back-btn {
+  text-decoration: none;
+  width: fit-content;
+}
+
+.outpatient-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.outpatient-calendar-panel {
+  padding: 0.85rem !important;
+}
+
+.calendar-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+
+.calendar-nav-btn {
+  padding: 0.3rem 0.55rem !important;
+  font-size: 0.8rem !important;
+}
+
+.calendar-month-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  min-width: 130px;
+  text-align: center;
+}
+
+.calendar-grid {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.3rem;
+  margin-bottom: 0.3rem;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--brand);
+  padding: 0.25rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.3rem;
+}
+
+.calendar-day {
+  border: 1px solid #c2d6db;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #f9fdff 0%, #eef6f8 100%);
+  padding: 0.35rem;
+  min-height: 75px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  position: relative;
+}
+
+.calendar-day-other-month {
+  background: #f0f4f5;
+  opacity: 0.6;
+}
+
+.calendar-day-number {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--brand);
+  line-height: 1;
+}
+
+.calendar-day-patients {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.calendar-patient-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  background: #e4f1f3;
+  border: 1px solid #bad7dc;
+  border-radius: 5px;
+  padding: 0.25rem 0.3rem;
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: background-color 0.15s, box-shadow 0.15s;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+}
+
+.calendar-patient-item:hover {
+  background: #d5e8ec;
+  box-shadow: 0 1px 4px rgba(17, 100, 102, 0.15);
+}
+
+.calendar-patient-initials {
+  font-weight: 700;
+  color: #0e4f56;
+  line-height: 1;
+}
+
+.calendar-patient-code {
+  font-size: 0.6rem;
+  color: #2a545f;
+  font-weight: 500;
+  line-height: 1;
+}
+
+@media (max-width: 1200px) {
+  .calendar-day {
+    min-height: 65px;
+  }
+
+  .calendar-patient-item {
+    font-size: 0.62rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-controls {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  .calendar-day {
+    min-height: 60px;
+  }
+
+  .calendar-patient-item {
+    padding: 0.2rem 0.25rem;
+    font-size: 0.6rem;
+  }
+}
+
+.outpatient-check-wrap {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 10px;
+  border: 1px solid #c2d6db;
+  background: #f4fafb;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.outpatient-check-wrap input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+
+.outpatient-deadline {
+  font-size: 0.8rem;
+  color: #2a545f;
+  background: #e4f1f3;
+  border: 1px solid #bed7dc;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+}
+
+.outpatient-detail-wrap {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.8rem;
+}
+
+.outpatient-edit-grid {
+  border: 1px solid #d1e0e5;
+  background: #f7fcfe;
+  border-radius: 12px;
+  padding: 0.7rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.outpatient-edit-grid label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.84rem;
+  color: #23444b;
+}
+
+.outpatient-edit-grid textarea,
+.outpatient-edit-grid input {
+  width: 100%;
+  border: 1px solid #bfd2d7;
+  border-radius: 10px;
+  background: #fcffff;
+  color: #0e232a;
+  padding: 0.5rem 0.58rem;
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.outpatient-edit-grid textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.outpatient-full-span {
+  grid-column: 1 / -1;
+}
+
 .patient-form label,
 .select-wrap {
   display: grid;
@@ -877,6 +1118,10 @@ button {
   }
 
   .patient-form {
+    grid-template-columns: 1fr;
+  }
+
+  .outpatient-edit-grid {
     grid-template-columns: 1fr;
   }
 }
