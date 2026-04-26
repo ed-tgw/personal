@@ -13,6 +13,12 @@ const sections = [
     subtitle: "Track holdings, performance, and ideas",
     icon: "📈",
   },
+  {
+    href: "/outpatient-dashboard",
+    title: "Outpatient Records",
+    subtitle: "Review queue for education and follow-up labs",
+    icon: "🏥",
+  },
 ];
 
 export default function Home() {
@@ -31,7 +37,7 @@ export default function Home() {
           </p>
         </div>
 
-        <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {sections.map((section) => (
             <Link
               key={section.href}
