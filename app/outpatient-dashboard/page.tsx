@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 interface OutpatientRecord {
@@ -396,6 +397,12 @@ export default function OutpatientDashboardPage() {
 
   return (
     <main className="rounds-shell">
+      <div className="outpatient-back-row">
+        <Link href="/" className="ghost-btn outpatient-back-btn">
+          ← Back to Main Dashboard
+        </Link>
+      </div>
+
       <section className="hero-band">
         <div>
           <p className="eyebrow">Outpatient Follow-Up Dashboard</p>

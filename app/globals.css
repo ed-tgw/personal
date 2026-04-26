@@ -705,6 +705,16 @@ button {
   align-items: center;
 }
 
+.outpatient-back-row {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.outpatient-back-btn {
+  text-decoration: none;
+  width: fit-content;
+}
+
 .outpatient-header-actions {
   margin-left: auto;
   display: flex;
