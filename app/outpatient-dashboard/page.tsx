@@ -115,6 +115,10 @@ export default function OutpatientDashboardPage() {
   const [editDraft, setEditDraft] = useState<OutpatientForm | null>(null);
   const [editDiagnosisInput, setEditDiagnosisInput] = useState("");
 
+  const [editingReviewedId, setEditingReviewedId] = useState<string | null>(null);
+  const [editReviewedDraft, setEditReviewedDraft] = useState<OutpatientForm | null>(null);
+  const [editReviewedDiagnosisInput, setEditReviewedDiagnosisInput] = useState("");
+
   const [pendingUndo, setPendingUndo] = useState<PendingUndo | null>(null);
   const [undoMessage, setUndoMessage] = useState("");
   const undoTimerRef = useRef<number | null>(null);
@@ -311,6 +315,48 @@ export default function OutpatientDashboardPage() {
     cancelEditing();
   };
 
+  const startEditingReviewed = (record: OutpatientRecord) => {
+    setEditingReviewedId(record.id);
+    setEditReviewedDraft({
+      hospitalCode: record.hospitalCode,
+      initials: record.initials,
+      diagnosis: [...record.diagnosis],
+      entryDate: record.entryDate,
+      deadlineDate: record.deadlineDate,
+      problemSummary: record.problemSummary,
+      reviewItems: record.reviewItems
+    });
+    setEditReviewedDiagnosisInput("");
+  };
+
+  const cancelEditingReviewed = () => {
+    setEditingReviewedId(null);
+    setEditReviewedDraft(null);
+    setEditReviewedDiagnosisInput("");
+  };
+
+  const saveEditingReviewed = (recordId: string) => {
+    if (!editReviewedDraft) return;
+
+    setReviewed((prev) =>
+      prev.map((record) =>
+        record.id === recordId
+          ? {
+              ...record,
+              hospitalCode: editReviewedDraft.hospitalCode.trim(),
+              initials: editReviewedDraft.initials.trim().toUpperCase(),
+              diagnosis: editReviewedDraft.diagnosis,
+              entryDate: editReviewedDraft.entryDate,
+              deadlineDate: editReviewedDraft.deadlineDate,
+              problemSummary: editReviewedDraft.problemSummary.trim(),
+              reviewItems: editReviewedDraft.reviewItems.trim()
+            }
+          : record
+      )
+    );
+    cancelEditingReviewed();
+  };
+
   return (
     <main className="rounds-shell">
       <section className="hero-band">
@@ -333,22 +379,24 @@ export default function OutpatientDashboardPage() {
       <section className="panel">
         <header className="section-title">
           <h2>To Review</h2>
-          <div className="sort-controls">
-            <span className="sort-label">Sort by:</span>
-            <button
-              className={`sort-btn${sortMode === "entry" ? " active" : ""}`}
-              onClick={() => setSortMode("entry")}
-            >
-              Entry Date
-            </button>
-            <button
-              className={`sort-btn${sortMode === "deadline" ? " active" : ""}`}
-              onClick={() => setSortMode("deadline")}
-            >
-              Deadline Date
-            </button>
+          <div className="outpatient-header-actions">
+            <div className="sort-controls">
+              <span className="sort-label">Sort by:</span>
+              <button
+                className={`sort-btn${sortMode === "entry" ? " active" : ""}`}
+                onClick={() => setSortMode("entry")}
+              >
+                Entry Date
+              </button>
+              <button
+                className={`sort-btn${sortMode === "deadline" ? " active" : ""}`}
+                onClick={() => setSortMode("deadline")}
+              >
+                Deadline Date
+              </button>
+            </div>
+            <span className="count-pill">To review: {toReview.length}</span>
           </div>
-          <span className="count-pill">To review: {toReview.length}</span>
         </header>
 
         <div className="patient-list">
@@ -608,6 +656,7 @@ export default function OutpatientDashboardPage() {
           ) : (
             filteredReviewed.map((record) => {
               const isExpanded = Boolean(expandedReviewed[record.id]);
+              const isEditing = editingReviewedId === record.id && editReviewedDraft !== null;
               return (
                 <article className="discharged-card" key={`reviewed-${record.id}`}>
                   <div className="discharged-card-header">
@@ -644,18 +693,159 @@ export default function OutpatientDashboardPage() {
 
                   {isExpanded && (
                     <div className="discharged-detail">
-                      <p>
-                        <strong>Entry date:</strong> {record.entryDate} | <strong>Deadline:</strong>{" "}
-                        {record.deadlineDate}
-                      </p>
-                      <div className="discharged-section">
-                        <strong>Short Problem Summary</strong>
-                        <p className="pre-wrap">{record.problemSummary}</p>
-                      </div>
-                      <div className="discharged-section">
-                        <strong>Things to Review</strong>
-                        <p className="pre-wrap">{record.reviewItems}</p>
-                      </div>
+                      {isEditing ? (
+                        <div className="outpatient-edit-grid">
+                          <label>
+                            Hospital code
+                            <input
+                              value={editReviewedDraft.hospitalCode}
+                              onChange={(event) =>
+                                setEditReviewedDraft((prev) =>
+                                  prev ? { ...prev, hospitalCode: event.target.value } : prev
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            Patient initials
+                            <input
+                              value={editReviewedDraft.initials}
+                              onChange={(event) =>
+                                setEditReviewedDraft((prev) =>
+                                  prev ? { ...prev, initials: event.target.value } : prev
+                                )
+                              }
+                            />
+                          </label>
+
+                          <div className="form-field outpatient-full-span">
+                            <span className="form-field-label">Diagnosis Tags</span>
+                            <div className="tag-input-wrap">
+                              {editReviewedDraft.diagnosis.map((tag, index) => (
+                                <span key={`${record.id}-reviewed-edit-tag-${index}`} className="diagnosis-tag">
+                                  {tag}
+                                  <button
+                                    type="button"
+                                    className="tag-remove"
+                                    onClick={() =>
+                                      setEditReviewedDraft((prev) =>
+                                        prev
+                                          ? {
+                                              ...prev,
+                                              diagnosis: prev.diagnosis.filter((_, i) => i !== index)
+                                            }
+                                          : prev
+                                      )
+                                    }
+                                  >
+                                    x
+                                  </button>
+                                </span>
+                              ))}
+                              <input
+                                className="tag-text-input"
+                                placeholder="Type a tag and press Enter"
+                                value={editReviewedDiagnosisInput}
+                                onChange={(event) => setEditReviewedDiagnosisInput(event.target.value)}
+                                onKeyDown={(event) => {
+                                  if (event.key === "Enter" || event.key === ",") {
+                                    event.preventDefault();
+                                    const nextTag = editReviewedDiagnosisInput.trim().replace(/,$/, "");
+                                    if (nextTag) {
+                                      setEditReviewedDraft((prev) =>
+                                        prev && !prev.diagnosis.includes(nextTag)
+                                          ? { ...prev, diagnosis: [...prev.diagnosis, nextTag] }
+                                          : prev
+                                      );
+                                    }
+                                    setEditReviewedDiagnosisInput("");
+                                  }
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          <label>
+                            Entry date
+                            <input
+                              type="date"
+                              value={editReviewedDraft.entryDate}
+                              onChange={(event) =>
+                                setEditReviewedDraft((prev) =>
+                                  prev ? { ...prev, entryDate: event.target.value } : prev
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            Deadline date for review
+                            <input
+                              type="date"
+                              value={editReviewedDraft.deadlineDate}
+                              onChange={(event) =>
+                                setEditReviewedDraft((prev) =>
+                                  prev ? { ...prev, deadlineDate: event.target.value } : prev
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label className="outpatient-full-span">
+                            Short problem summary
+                            <textarea
+                              value={editReviewedDraft.problemSummary}
+                              onChange={(event) =>
+                                setEditReviewedDraft((prev) =>
+                                  prev ? { ...prev, problemSummary: event.target.value } : prev
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label className="outpatient-full-span">
+                            Things to review
+                            <textarea
+                              value={editReviewedDraft.reviewItems}
+                              onChange={(event) =>
+                                setEditReviewedDraft((prev) =>
+                                  prev ? { ...prev, reviewItems: event.target.value } : prev
+                                )
+                              }
+                            />
+                          </label>
+
+                          <div className="edit-actions outpatient-full-span">
+                            <button className="primary-btn small" onClick={() => saveEditingReviewed(record.id)}>
+                              Save
+                            </button>
+                            <button className="secondary-btn small" onClick={cancelEditingReviewed}>
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <p>
+                            <strong>Entry date:</strong> {record.entryDate} | <strong>Deadline:</strong>{" "}
+                            {record.deadlineDate}
+                          </p>
+                          <div className="discharged-section">
+                            <div className="detail-row-header">
+                              <strong>Short Problem Summary</strong>
+                              <button className="edit-btn" onClick={() => startEditingReviewed(record)}>
+                                Edit
+                              </button>
+                            </div>
+                            <p className="pre-wrap">{record.problemSummary}</p>
+                          </div>
+                          <div className="discharged-section">
+                            <strong>Things to Review</strong>
+                            <p className="pre-wrap">{record.reviewItems}</p>
+                          </div>
+                        </>
+                      )}
                     </div>
                   )}
                 </article>

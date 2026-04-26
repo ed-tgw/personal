@@ -705,6 +705,15 @@ button {
   align-items: center;
 }
 
+.outpatient-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .outpatient-check-wrap {
   display: grid;
   place-items: center;
